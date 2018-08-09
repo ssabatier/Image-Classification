@@ -1,3 +1,5 @@
+# Simple CNN or pre-trained Inception model to perform image classification of a sub-set of Caltech 101 dataset.
+
 import os
 import pickle
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -9,11 +11,12 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 # Define our example directories and files
+# Change to correct directory on your machine
 base_dir ='C:\\Users\Stallone\Documents\PycharmProjects\example_code\ObjectCategories'
 train_dir = os.path.join(base_dir, 'train')
 validation_dir = os.path.join(base_dir, 'validation')
 
-# Directory with our training pictures
+# Directories with our training pictures
 train_scorpion_dir = os.path.join(train_dir, 'scorpion')
 train_sea_horse_dir = os.path.join(train_dir, 'sea_horse')
 train_soccer_ball_dir = os.path.join(train_dir, 'soccer_ball')
@@ -22,7 +25,7 @@ train_stegosaurus_dir = os.path.join(train_dir, 'stegosaurus')
 train_stop_sign_dir = os.path.join(train_dir, 'stop_sign')
 train_sunflower_dir = os.path.join(train_dir, 'sunflower')
 
-# Directory with our validation pictures
+# Directories with our validation pictures
 validation_scorpion_dir = os.path.join(validation_dir, 'scorpion')
 validation_sea_horse_dir = os.path.join(validation_dir, 'sea_horse')
 validation_soccer_ball_dir = os.path.join(validation_dir, 'soccer_ball')
@@ -31,6 +34,7 @@ validation_stegosaurus_dir = os.path.join(validation_dir, 'stegosaurus')
 validation_stop_sign_dir = os.path.join(validation_dir, 'stop_sign')
 validation_sunflower_dir = os.path.join(validation_dir, 'sunflower')
 
+# List of files in each folder
 train_scorpion_fnames = os.listdir(train_scorpion_dir)
 train_sea_horse_fnames = os.listdir(train_sea_horse_dir)
 train_soccer_ball_fnames = os.listdir(train_soccer_ball_dir)
@@ -49,24 +53,25 @@ train_datagen = ImageDataGenerator(
     zoom_range=0.2,
     horizontal_flip=True)
 
-# Note that the validation data should not be augmented!
+# Note that the validation data should not be augmented
 test_datagen = ImageDataGenerator(rescale=1./255)
 
 train_generator = train_datagen.flow_from_directory(
         train_dir, # This is the source directory for training images
-        target_size=(300, 200),  # All images will be resized to 150x150
+        target_size=(300, 200),  # Original input image size
         batch_size=5,
-        # Since we use binary_crossentropy loss, we need binary labels
+        # Since we use categorical_crossentropy loss, we need one-hot labels
         class_mode=('categorical'))
 
-# Flow validation images in batches of 20 using test_datagen generator
+# Flow validation images in batches of 5 using test_datagen generator
+# (Higher batch number results in less random fluctuations in loss)
 validation_generator = test_datagen.flow_from_directory(
         validation_dir,
         target_size=(300, 200),
         batch_size=5,
         class_mode=('categorical'))
 
-# Our input feature map is 150x150x3: 150x150 for the image pixels, and 3 for
+# Our input feature map is 300x200x3: 300x200 for the image pixels, and 3 for
 # the three color channels: R, G, and B
 img_input = layers.Input(shape=(300, 200, 3))
 
@@ -97,7 +102,7 @@ x = layers.Dropout(0.5)(x)
 # Create output layer with a single node and sigmoid activation
 output = layers.Dense(7, activation='sigmoid')(x)
 
-# Uncomment this section to use, pre-trained Inception v3 model as classifier
+## Uncomment this section to use, pre-trained Inception v3 model as classifier
 # local_weights_file = 'C:\\Users\Stallone\Documents\PycharmProjects\example_code\inception_v3_weights_tf_dim_ordering_tf_kernels_notop.h5'
 # pre_trained_model = InceptionV3(
 #     input_shape=(300, 200, 3), include_top=False, weights=None)
@@ -120,10 +125,10 @@ output = layers.Dense(7, activation='sigmoid')(x)
 # x = layers.Dense(7, activation='sigmoid')(x)
 
 # # Configure and compile the model
-# # model = Model(pre_trained_model.input, x)
-# # model.compile(loss='categorical_crossentropy',
-# #               optimizer=RMSprop(lr=0.0001),
-# #               metrics=['acc'])
+# model = Model(pre_trained_model.input, x)
+# model.compile(loss='categorical_crossentropy',
+#               optimizer=RMSprop(lr=0.0001),
+#               metrics=['acc'])
 
 # Configure and compile the model
 model = Model(img_input, output)
@@ -140,8 +145,6 @@ history = model.fit_generator(
        validation_steps=33,
        verbose=2)
 
-
-plt.interactive(False)
 # Retrieve a list of accuracy results on training and test data
 # sets for each training epoch
 acc = history.history['acc']
