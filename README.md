@@ -1,1 +1,4 @@
 # Image-Classification
+This repository performs image classification on a sub-set of the Caltech 101 dataset. The data folder contains .jpeg images of seven classes from the original dataset and are: scorpion, seahorse, soccer ball, starfish, stegosaurus, stop sign and sunflower. Data pre-processing, model definition, training and evaluation are all contained in the imclass.py file. The created model and corpus were chosen due to computing and memory restraints of my laptop. 
+
+The data folder contains separate training and validation folders each containing sub-folders indicating each class label. There are approximately 60 and 20 training and validation images for each label, respectively. Due to the small number of training images, the effect of data augmentation and dropout regularization is assessed. The script outputs the training and validation loss and accuracy. 
